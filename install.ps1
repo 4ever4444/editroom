@@ -37,7 +37,8 @@ if (-not (Test-Path (Join-Path $app 'install\setup.py'))) {
     }
     Remove-Item -Recurse -Force "$app.new" -ErrorAction SilentlyContinue
     Expand-Archive -Force $zip "$app.new"
-    if ($v) { $v | ConvertTo-Json | Set-Content -Encoding UTF8 "$app.new\version.json" }   # which version this is (updates)
+    # which version this is (updates); .NET writes UTF-8 without a BOM (Set-Content -Encoding UTF8 adds one, 23.11)
+    if ($v) { [IO.File]::WriteAllText("$app.new\version.json", ($v | ConvertTo-Json)) }
     Move-Item "$app.new" $app
 }
 
